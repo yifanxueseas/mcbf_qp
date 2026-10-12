@@ -1,0 +1,36 @@
+env_name: "social_nav_dynamic"  # Environment: "hospital" (num_dyn_circle: 5),
+                                #             "social_nav_dynamic" (num_dyn_circle: 10),
+                                # Any other name renders an empty map.
+
+radius: 0.5
+
+num_dyn_circle: 10              # Number of dynamic circular obstacles.
+                                # Define your own obstacle trajectories to use dynamic obstacles
+                                # in this scenario.
+
+### Robot Path Settings:
+dynamics: "differential"        #support: "omni-directional" or "differential"
+# target: [-5., 0.]
+# target: [-9.5,0.5]
+target: [4.,0.]
+init_state: [-2., 0.]
+# init_state: [-15.,0.]
+# init_state: [-10.5,0.5]
+# init_state: [-7, -4.]
+# init_state: [-16.5,4.]
+# init_state: [-6, 0.5]
+
+
+### Controller Settings:
+threeD_controller: False        # Enable the augmented CBF. Supported for differential-drive
+                                # robots in the "hospital" environments.
+
+nominal_speed: 1.0
+
+MCBF: True                      # Set to False to use the standard CBF instead of MCBF.
+
+autotune: True                  # If True, automatically select beta values.
+                                # If False, load manually tuned beta values based on the
+                                # robot's location relative to the obstacle.
+                                # Hand-tuned controllers are only available for targets
+                                # specified in the YAML files under the handtune folders.
