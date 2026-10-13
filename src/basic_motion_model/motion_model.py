@@ -3,8 +3,6 @@ from abc import ABC
 from copy import deepcopy
 from enum import Enum
 from typing import Callable, Optional, Union
-
-import casadi.casadi as cs  # type: ignore
 import numpy as np
 
 """
@@ -174,8 +172,8 @@ class ReciprocatingModel(MotionModel):
 
 
 def omnidirectional_model(
-    state: Union[np.ndarray, cs.SX], action: Union[np.ndarray, cs.SX], ts: float
-) -> Union[np.ndarray, cs.SX]:
+    state: Union[np.ndarray], action: Union[np.ndarray], ts: float
+) -> Union[np.ndarray]:
     """Omnidirectional model.
 
     Args:
@@ -188,8 +186,8 @@ def omnidirectional_model(
 
 
 def human_model(
-    state: Union[np.ndarray, cs.SX], action: Union[np.ndarray, cs.SX], ts: float
-) -> Union[np.ndarray, cs.SX]:
+    state: Union[np.ndarray], action: Union[np.ndarray], ts: float
+) -> Union[np.ndarray]:
     """Human model is based on the omnidirectional model.
 
     Args:
@@ -208,11 +206,11 @@ def human_model(
 
 
 def unicycle_model(
-    state: Union[np.ndarray, cs.SX],
-    action: Union[np.ndarray, cs.SX],
+    state: Union[np.ndarray],
+    action: Union[np.ndarray],
     ts: float,
     rk4: bool = True,
-) -> Union[np.ndarray, cs.SX]:
+) -> Union[np.ndarray]:
     """Unicycle model.
 
     Args:
@@ -223,21 +221,13 @@ def unicycle_model(
     """
 
     def d_state_f(state, action):
-        if isinstance(state, cs.SX):
-            return ts * cs.vertcat(
-                action[0] * cs.cos(state[2]), action[0] * cs.sin(state[2]), action[1]
-            )
         return ts * np.array(
             [action[0] * np.cos(state[2]), action[0] * np.sin(state[2]), action[1]]
         )
 
     def shift_theta(x):
         theta = x[2]
-
-        if isinstance(theta, (cs.SX, cs.MX, cs.DM)):
-            x[2] = cs.atan2(cs.sin(theta), cs.cos(theta))
-        else:
-            x[2] = np.arctan2(np.sin(theta), np.cos(theta))
+        x[2] = np.arctan2(np.sin(theta), np.cos(theta))
 
         return x
 
@@ -254,13 +244,13 @@ def unicycle_model(
 
 
 def reciprocating_model(
-    state: Union[np.ndarray, cs.SX],
-    action: Union[np.ndarray, cs.SX],
+    state: Union[np.ndarray],
+    action: Union[np.ndarray],
     ts: float,
     kt: int,
     p1: tuple,
     p2: tuple,
-) -> Union[np.ndarray, cs.SX]:
+) -> Union[np.ndarray]:
     """Reciprocating model (start from p1).
 
     Args:
@@ -284,14 +274,12 @@ def reciprocating_model(
         theta = np.arctan2(p1[1] - p2[1], p1[0] - p2[0])
     x = 2 * abs(0.5 - progress) * p1[0] + 2 * (0.5 - abs(0.5 - progress)) * p2[0]
     y = 2 * abs(0.5 - progress) * p1[1] + 2 * (0.5 - abs(0.5 - progress)) * p2[1]
-    if isinstance(state, cs.SX):
-        return cs.vertcat(x, y, theta)
     return np.array([x, y, theta])
 
 
 def car_model(
-    state: Union[np.ndarray, cs.SX], action: Union[np.ndarray, cs.SX], ts: float
-) -> Union[np.ndarray, cs.SX]:
+    state: Union[np.ndarray], action: Union[np.ndarray], ts: float
+) -> Union[np.ndarray]:
     """http://msl.cs.uiuc.edu/planning/node658.html"""
     raise NotImplementedError
 
